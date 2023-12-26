@@ -33,6 +33,7 @@ class User(UserMixin, db.Model):
     email = db.Column(db.String(120), unique=True, nullable=False)
     avatar_url = db.Column(db.String(200))
 
+
 @app.route("/")
 def home() -> str:
     return render_template("index.html")
