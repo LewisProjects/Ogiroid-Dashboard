@@ -1,0 +1,25 @@
+{% extends "layout.html" %}
+
+{% block title %}
+Home
+{% endblock %}
+
+{% block main %}
+<script>
+    const adjustSizes = () => {
+        const navbarHeight = getComputedStyle(document.getElementById("header")).height;
+        document.getElementById("landing").style.minHeight = `calc(100vh - ${navbarHeight})`;
+    }
+    document.addEventListener('DOMContentLoaded', () => {
+        adjustSizes()
+    });
+
+    const resizeObserver = new ResizeObserver(elements => {
+        adjustSizes()
+    });
+
+    resizeObserver.observe(document.getElementById("header"));
+</script>
+<main>
+</main>
+{% endblock %}
