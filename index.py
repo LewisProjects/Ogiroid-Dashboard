@@ -3,12 +3,17 @@ from urllib import parse
 
 from dotenv import load_dotenv
 from flask import Flask, Response, redirect, render_template, request
+from flask_migrate import Migrate
+from models import *
+
 from login import get_access_token, get_user_client
 from zenora import APIClient
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user
-from flask_sqlalchemy import SQLAlchemy
+
+from models import db
 
 app = Flask(__name__)
+
 load_dotenv()
 TOKEN = os.environ.get("TOKEN")
 CLIENT_SECRET = os.environ.get("CLIENT_SECRET")
@@ -24,14 +29,8 @@ login_manager.login_view = "signin"
 
 client = APIClient(TOKEN, client_secret=CLIENT_SECRET)
 
-db = SQLAlchemy(app)
-
-
-class User(UserMixin, db.Model):
-    id = db.Column(db.BigInteger, primary_key=True)
-    username = db.Column(db.String(80), unique=True, nullable=False)
-    email = db.Column(db.String(120), unique=True, nullable=False)
-    avatar_url = db.Column(db.String(200))
+migrate = Migrate(app, db)
+db.init_app(app)
 
 
 @app.route("/")
