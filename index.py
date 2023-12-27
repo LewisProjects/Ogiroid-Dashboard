@@ -4,6 +4,8 @@ from urllib import parse
 from dotenv import load_dotenv
 from flask import Flask, Response, redirect, render_template, request
 from flask_migrate import Migrate
+from sqlalchemy.ext.automap import automap_base
+
 from models import *
 
 from login import get_access_token, get_user_client
@@ -20,7 +22,12 @@ CLIENT_SECRET = os.environ.get("CLIENT_SECRET")
 CLIENT_ID = os.environ.get("CLIENT_ID")
 REDIRECT_URI = os.environ.get("REDIRECT_URI")
 app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY")
-app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("POSTGRES_CONNECTION_STRING")
+app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("POSTGRES_DASHBOARD_CONNECTION_STRING")
+app.config["SQLALCHEMY_BINDS"] = {
+    "ogiroid": os.environ.get("POSTGRES_OGIROID_CONNECTION_STRING"),
+    "dashboard": os.environ.get("POSTGRES_DASHBOARD_CONNECTION_STRING"),
+}
+
 OAUTH_URL = (
     f"https://discord.com/api/oauth2/authorize?client_id=1011297534334996502&redirect_uri={parse.quote(REDIRECT_URI)}&response_type=code&scope=identify%20email%20guilds")
 
@@ -31,6 +38,24 @@ client = APIClient(TOKEN, client_secret=CLIENT_SECRET)
 
 migrate = Migrate(app, db)
 db.init_app(app)
+with app.app_context():
+    Base = automap_base()
+    Base.prepare(autoload_with=db.engines["ogiroid"])
+
+Tag = Base.classes.tags
+Warnings = Base.classes.warnings
+TagRelation = Base.classes.tag_relations
+Blacklist = Base.classes.blacklist
+FlagQuiz = Base.classes.flag_quiz
+Trivia = Base.classes.trivia
+ReactionRole = Base.classes.reaction_roles
+Level = Base.classes.levels
+RoleReward = Base.classes.role_rewards
+Birthday = Base.classes.birthday
+Timezone = Base.classes.timezone
+Config = Base.classes.config
+Command = Base.classes.commands
+TotalCommand = Base.classes.total_commands
 
 
 @app.route("/")
@@ -88,6 +113,4 @@ def login_callback():
 
 
 if __name__ == "__main__":
-    with app.app_context():
-        db.create_all()
     app.run(debug=os.getenv("DEBUG"))
