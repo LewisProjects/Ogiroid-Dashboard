@@ -38,25 +38,6 @@ client = APIClient(TOKEN, client_secret=CLIENT_SECRET)
 
 migrate = Migrate(app, db)
 db.init_app(app)
-with app.app_context():
-    Base = automap_base()
-    Base.prepare(autoload_with=db.engines["ogiroid"])
-
-Tag = Base.classes.tags
-Warnings = Base.classes.warnings
-TagRelation = Base.classes.tag_relations
-Blacklist = Base.classes.blacklist
-FlagQuiz = Base.classes.flag_quiz
-Trivia = Base.classes.trivia
-ReactionRole = Base.classes.reaction_roles
-Level = Base.classes.levels
-RoleReward = Base.classes.role_rewards
-Birthday = Base.classes.birthday
-Timezone = Base.classes.timezone
-Config = Base.classes.config
-Command = Base.classes.commands
-TotalCommand = Base.classes.total_commands
-
 
 @app.route("/")
 def home() -> str:
